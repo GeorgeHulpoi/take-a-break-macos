@@ -1,13 +1,18 @@
 
-struct Rules {
+struct Rules: Sendable {
     static let defaultRules: [Rule] = [
-        Rule(state: State.working, duration: 20 * 60),
-        Rule(state: State.pause, duration: 20, message: ["Look 20m away"]),
-        Rule(state: State.working, duration: 20 * 60),
-        Rule(state: State.pause, duration: 20, message: ["Look 20m away"]),
-        Rule(state: State.working, duration: (10 * 60) - 40),
-        Rule(state: State.pause, duration: 10 * 60, message: ["Get up and walk"])
+        Rule(state: EAppState.working, duration: 5),
+        Rule(state: EAppState.pause, duration: 5, message: ["Look 20m away"]),
     ]
+        
+//    static let defaultRules: [Rule] = [
+//        Rule(state: EAppState.working, duration: 20 * 60),
+//        Rule(state: EAppState.pause, duration: 20, message: ["Look 20m away"]),
+//        Rule(state: EAppState.working, duration: 20 * 60),
+//        Rule(state: EAppState.pause, duration: 20, message: ["Look 20m away"]),
+//        Rule(state: EAppState.working, duration: (10 * 60) - 40),
+//        Rule(state: EAppState.pause, duration: 10 * 60, message: ["Get up and walk"])
+//    ]
     
     var items: [Rule] = []
     private var activeIndex: Int = 0

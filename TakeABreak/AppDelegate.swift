@@ -1,110 +1,91 @@
-import SwiftUI
 import Combine
 import ServiceManagement
+import SwiftUI
 
 class AppDelegate: NSObject, NSApplicationDelegate {
-    var statusItem: StatusItem?
-    var timer: Timer?
-    private var cancellables: [AnyCancellable] = []
-    
-    var overlayWindows: [OverlayWindow] = []
-    var overlayModel: OverlayModel?
-    
-    override init() {
-        super.init()
-    }
-    
+    var statusItem = StatusItem()
+    private var isIdleCancellable: Cancellable?
+
     func applicationDidFinishLaunching(_ notification: Notification) {
-        _registerAppAsLoginItem()
-        _preventMultipleInstances()
-        _setupCurrentStateListener()
-        _setupTickTimer()
-        
-        Task { @MainActor in
-            await StateManager.shared.tick()
-            await _setupStatusItem()
-        }
+        preventMultipleInstances()
+        registerAppAsLoginItem()
+        setupNotificationCenterListeners()
+        setupListeners()
+        StateManager.shared.startTimer()
     }
-    
+
     func applicationWillTerminate(_ notification: Notification) {
-        timer?.invalidate()
+        cleanupListeners()
+        StateManager.shared.destroy()
+        cleanupNotificationCenterListeners()
+    }
+
+    private func setupListeners() {
+        IdleMonitor.shared.start()
+        OverlaysManager.shared.start()
         
-        for cancellable in cancellables {
-            cancellable.cancel()
-        }
-    }
-    
-    private func _setupStatusItem() async {
-        let timeRemainingText = await StateManager.shared.timeRemainingText
-        statusItem = await StatusItem(timeRemainingText)
-    }
-    
-    private func _setupCurrentStateListener() {
-        cancellables.append(
-            StateManager.shared.currentState$
-                .sink { currentState in
-                    if currentState == .pause {
-                        Task {
-                            await self._openOverlay()
-                        }
-                    } else if currentState == .working {
-                        Task {
-                            await self._closeOverlay()
-                        }
-                    }
+        isIdleCancellable = IdleMonitor.shared.$isIdle
+            .receive(on: RunLoop.main)
+            .sink { isIdle in
+                guard StateManager.shared.currentState == .working else { return }
+
+                StateManager.shared.reset()
+                if isIdle {
+                    StateManager.shared.destroy()
+                } else {
+                    StateManager.shared.startTimer()
                 }
+            }
+    }
+    
+    private func cleanupListeners() {
+        IdleMonitor.shared.destroy()
+        OverlaysManager.shared.destroy()
+        isIdleCancellable?.cancel()
+    }
+
+    private func setupNotificationCenterListeners() {
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(systemWillSleep),
+            name: NSWorkspace.willSleepNotification,
+            object: nil
+        )
+
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(systemDidWake),
+            name: NSWorkspace.didWakeNotification,
+            object: nil
         )
     }
     
-    private func _openOverlay() async {
-        overlayModel = await OverlayModel.create()
-    
-        
-        for screen in NSScreen.screens {
-            let window = await OverlayWindow(frame: screen.frame, model: overlayModel!)
-            overlayWindows.append(window)
-        }
-        
-        if let sound = NSSound(named: "Sosumi") {
-            sound.play()
-        }
+    private func cleanupNotificationCenterListeners() {
+        NSWorkspace.shared.notificationCenter.removeObserver(self)
     }
-    
-    private func _closeOverlay() async {
-        overlayModel?.lock()
-        
-        let windowsToClose = self.overlayWindows
-        self.overlayWindows.removeAll()
-        
-        for win in windowsToClose {
-            await win.hideAndClose()
-        }
-        
-        if let sound = NSSound(named: "Sosumi") {
-            sound.play()
-        }
-    }
-    
-    private func _preventMultipleInstances() {
+
+    private func preventMultipleInstances() {
         let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier!)
 
         if runningApps.count > 1 {
             NSApplication.shared.terminate(nil)
         }
     }
-    
-    private func _setupTickTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
-            Task {
-                await StateManager.shared.tick()
-            }
-        }
-        RunLoop.main.add(timer!, forMode: .common)
-    }
-    
-    private func _registerAppAsLoginItem() {
+
+    private func registerAppAsLoginItem() {
         if SMAppService.mainApp.status != .enabled {
             try? SMAppService.mainApp.register()
         }
+    }
+
+    @objc func systemWillSleep(notification: Notification) {
+        StateManager.shared.destroy()
+        cleanupListeners()
+    }
+
+    @objc func systemDidWake(notification: Notification) {
+        StateManager.shared.reset()
+        StateManager.shared.startTimer()
+        setupListeners()
     }
 }

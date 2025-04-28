@@ -1,7 +1,10 @@
 import SwiftUI
 
-struct OverlayView: View {
-    @SwiftUI.State var model: OverlayModel
+struct OverlayContentView: View {
+    @Binding var title: String
+    @State private var showConfirmation = false
+    var description: String?
+    var onSkip: (() -> Void)? = nil
     
     var body: some View {
         ZStack {
@@ -9,13 +12,13 @@ struct OverlayView: View {
                 .ignoresSafeArea()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             VStack {
-                Text(model.timeRemaining)
+                Text(title)
                     .font(.system(size: 72))
                     .bold()
                     .lineLimit(1)
                     .fixedSize()
                     .padding(.vertical, -16)
-                if let description = model.description {
+                if let description = description {
                     Text(description)
                         .font(.system(size: 48))
                         .lineLimit(1)
@@ -23,17 +26,22 @@ struct OverlayView: View {
                 }
                 Spacer().frame(height: 32)
                 Button("Skip") {
-                    Task {
-                        await StateManager.shared.nextState()
-                    }
+                    showConfirmation = true
                 }
                 .buttonStyle(OutlineButtonStyle())
+                .confirmationDialog("Is your work more important than your health?", isPresented: $showConfirmation) {
+                    Button("Not sure", role: .cancel) {
+                        showConfirmation = false
+                    }
+                    Button("Yes", role: .none) {
+                        onSkip?()
+                    }
+                }
             }
         }
     }
 }
 
 #Preview {
-    let model = OverlayModel(timeRemaining: "00:20", description: "Description")
-    OverlayView(model: model)
+    OverlayContentView(title: Binding.constant("Title"), description: "Description")
 }

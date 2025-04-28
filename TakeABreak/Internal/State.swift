@@ -1,4 +1,4 @@
-enum State: Equatable {
+enum EAppState: Equatable {
     case pause
     case working
 }

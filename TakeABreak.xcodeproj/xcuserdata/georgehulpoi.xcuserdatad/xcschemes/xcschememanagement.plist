@@ -9,14 +9,14 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
-		<key>TakeABreakHelper.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>1</integer>
-		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>E939AD9F2DC12D3600C08F72</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>E9C3DCF32DBCCE0C00C47807</key>
 		<dict>
 			<key>primary</key>
