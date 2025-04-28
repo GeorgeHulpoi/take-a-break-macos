@@ -38,9 +38,22 @@
 		E9F70E6C2DA9C251008ED7B3 /* TakeABreakTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TakeABreakTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E9062E2A2DC021DF0014198B /* Exceptions for "TakeABreak" folder in "TakeABreak" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E9F70E5A2DA9C250008ED7B3 /* TakeABreak */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E9F70E5D2DA9C250008ED7B3 /* TakeABreak */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E9062E2A2DC021DF0014198B /* Exceptions for "TakeABreak" folder in "TakeABreak" target */,
+			);
 			path = TakeABreak;
 			sourceTree = "<group>";
 		};
@@ -350,6 +363,9 @@
 				DEVELOPMENT_ASSET_PATHS = "\"TakeABreak/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TakeABreak/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Take a Break";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -376,6 +392,9 @@
 				DEVELOPMENT_ASSET_PATHS = "\"TakeABreak/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TakeABreak/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Take a Break";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
